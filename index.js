@@ -75,10 +75,12 @@ const dataObj = JSON.parse(data);
 const PORT = 8080;
 
 const server = http.createServer(async (req, res) => {
-    const pathName = req.url;
+    const myUrl = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = myUrl.pathname;
+    const query = Object.fromEntries(myUrl.searchParams);
 
     // overview page
-    if (pathName === "/" || pathName === "/overview") {
+    if (pathname === "/" || pathname === "/overview") {
         res.writeHead(200, { "Content-Type": "text/html" });
 
         const cardsHtml = dataObj
@@ -89,11 +91,16 @@ const server = http.createServer(async (req, res) => {
         res.end(output);
     }
     // product page
-    else if (pathName === "/product") {
-        res.end("This is the product page");
+    else if (pathname === "/product") {
+        res.writeHead(200, { "Content-Type": "text/html" });
+
+        const product = dataObj[query.id];
+        const output = replaceTemplate(tempProduct, product);
+
+        res.end(output);
     }
     // API
-    else if (pathName === "/api") {
+    else if (pathname === "/api") {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(data);
     }
