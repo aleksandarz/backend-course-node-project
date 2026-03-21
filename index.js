@@ -42,18 +42,9 @@ import { replaceTemplate } from "./modules/replaceTemplate.js";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const tempOverview = fs.readFileSync(
-    `${__dirname}/templates/template-overview.html`,
-    "utf-8",
-);
-const tempProduct = fs.readFileSync(
-    `${__dirname}/templates/template-product.html`,
-    "utf-8",
-);
-const tempCard = fs.readFileSync(
-    `${__dirname}/templates/template-card.html`,
-    "utf-8",
-);
+const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, "utf-8");
+const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, "utf-8");
+const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, "utf-8");
 
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const dataObj = JSON.parse(data);
@@ -61,42 +52,38 @@ const dataObj = JSON.parse(data);
 const PORT = 8080;
 
 const server = http.createServer(async (req, res) => {
-    const myUrl = new URL(req.url, `http://${req.headers.host}`);
-    const pathname = myUrl.pathname;
-    const query = Object.fromEntries(myUrl.searchParams);
+  const myUrl = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = myUrl.pathname;
+  const query = Object.fromEntries(myUrl.searchParams);
 
-    // overview page
-    if (pathname === "/" || pathname === "/overview") {
-        res.writeHead(200, { "Content-Type": "text/html" });
+  // overview page
+  if (pathname === "/" || pathname === "/overview") {
+    res.writeHead(200, { "Content-Type": "text/html" });
 
-        const cardsHtml = dataObj
-            .map((el) => replaceTemplate(tempCard, el))
-            .join("");
-        const output = tempOverview.replace("{%PRODUCT_CARDS%}", cardsHtml);
+    const cardsHtml = dataObj.map((el) => replaceTemplate(tempCard, el)).join("");
+    const output = tempOverview.replace("{%PRODUCT_CARDS%}", cardsHtml);
 
-        res.end(output);
-    }
-    // product page
-    else if (pathname === "/product") {
-        res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(output);
+  }
+  // product page
+  else if (pathname === "/product") {
+    res.writeHead(200, { "Content-Type": "text/html" });
 
-        const product = dataObj[query.id];
-        const output = replaceTemplate(tempProduct, product);
+    const product = dataObj[query.id];
+    const output = replaceTemplate(tempProduct, product);
 
-        res.end(output);
-    }
-    // API
-    else if (pathname === "/api") {
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(data);
-    }
-    // 404 - Not Found page
-    else {
-        res.writeHead(404, { "Content-Type": "text/html" });
-        res.end("<h1>404 - Page not found</h1>");
-    }
+    res.end(output);
+  }
+  // API
+  else if (pathname === "/api") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(data);
+  }
+  // 404 - Not Found page
+  else {
+    res.writeHead(404, { "Content-Type": "text/html" });
+    res.end("<h1>404 - Page not found</h1>");
+  }
 });
 
-server.listen(PORT, () =>
-    console.log("Server is running on http://localhost:8080"),
-);
+server.listen(PORT, () => console.log("Server is running on http://localhost:8080"));
